@@ -33,7 +33,7 @@ junit.xml
 coverage.xml
 
 # Build and docs folder/files
-build/*
+
 dist/*
 sdist/*
 docs/api/*

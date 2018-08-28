@@ -1,0 +1,195 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>transplanttoolbox_victor.reverse_conversion &#8212; transplanttoolbox-victor 1.0.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for transplanttoolbox_victor.reverse_conversion</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! usr/bin/python </span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">requests</span>   
+<span class="kn">import</span> <span class="nn">transplanttoolbox_victor.vxm_hla</span>
+<span class="kn">from</span> <span class="nn">transplanttoolbox_victor.vxm_hla</span> <span class="k">import</span> <span class="n">allele_truncate</span>
+
+<span class="n">ag_to_allele_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">UA_eq_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+<span class="n">UNOS_UA_eq_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span><span class="s2">&quot;transplanttoolbox_victor/UNOS_4-10_ag_equivalencies.csv&quot;</span><span class="p">)</span>
+<span class="n">UNOS_UA_eq_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">UNOS_UA_eq_filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">UNOS_UA_eq_file</span><span class="p">:</span>
+	<span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Antigen&quot;</span><span class="p">):</span>
+		<span class="k">continue</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="n">row_split</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+		<span class="n">ua_ag</span> <span class="o">=</span> <span class="n">row_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">ua_ag_eqs</span> <span class="o">=</span> <span class="n">row_split</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+		<span class="n">ua_ag_eqs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ua_ag_eqs</span><span class="p">))</span>
+		<span class="n">UA_eq_dict</span><span class="p">[</span><span class="n">ua_ag</span><span class="p">]</span> <span class="o">=</span> <span class="n">ua_ag_eqs</span>
+<span class="c1">#print(UA_eq_dict)</span>
+
+<span class="n">UNOS_conversion_table_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span><span class="s2">&quot;transplanttoolbox_victor/UNOS_conversion_table_with_rules.csv&quot;</span><span class="p">)</span>
+<span class="n">UNOS_conversion_table_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">UNOS_conversion_table_filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">UNOS_conversion_table_file</span><span class="p">:</span>
+	<span class="n">expression_character</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+	<span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Allele&quot;</span><span class="p">):</span>
+		<span class="k">continue</span> 
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">allele</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">allele_4d</span> <span class="o">=</span> <span class="n">transplanttoolbox_victor</span><span class="o">.</span><span class="n">vxm_hla</span><span class="o">.</span><span class="n">allele_truncate</span><span class="p">(</span><span class="n">allele</span><span class="p">)</span>
+		<span class="n">antigen</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+		<span class="n">rule</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+		<span class="n">bw4_6</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">3</span><span class="p">]</span>
+		
+		<span class="k">if</span> <span class="n">antigen</span> <span class="ow">in</span> <span class="n">ag_to_allele_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">if</span> <span class="n">allele_4d</span> <span class="ow">in</span> <span class="n">ag_to_allele_dict</span><span class="p">[</span><span class="n">antigen</span><span class="p">]:</span>
+				<span class="k">continue</span>
+			<span class="k">else</span><span class="p">:</span>	
+
+				<span class="n">ag_to_allele_dict</span><span class="p">[</span><span class="n">antigen</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">allele_4d</span><span class="p">)</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">ag_to_allele_dict</span><span class="p">[</span><span class="n">antigen</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">allele_4d</span><span class="p">]</span>	 
+
+
+<span class="c1">#print(ag_to_allele_dict)</span>
+
+<span class="n">final_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c1">#ag_list = []</span>
+
+<span class="c1">#for ag in ag_to_allele_dict.keys():</span>
+	<span class="c1">#ag_list.append(ag)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">ag</span> <span class="ow">in</span> <span class="n">ag_to_allele_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+	<span class="n">allele_list</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">if</span> <span class="n">ag</span> <span class="ow">in</span> <span class="n">UA_eq_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+		<span class="n">ag_eqs</span> <span class="o">=</span> <span class="n">UA_eq_dict</span><span class="p">[</span><span class="n">ag</span><span class="p">]</span>
+		<span class="k">for</span> <span class="n">ages</span> <span class="ow">in</span> <span class="n">ag_eqs</span><span class="p">:</span>
+			<span class="n">ages</span> <span class="o">=</span> <span class="n">ages</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="n">alleles</span> <span class="o">=</span> <span class="n">ag_to_allele_dict</span><span class="p">[</span><span class="n">ages</span><span class="p">]</span>
+			<span class="n">d</span><span class="p">[</span><span class="n">ages</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">alleles</span><span class="p">]</span>
+
+			<span class="c1">#allele_list.append(alleles)</span>
+		
+		<span class="c1">#allele_list = [item for sublist in allele_list for item in sublist]</span>
+		<span class="c1">#allele_list = allele_list.sort()</span>
+		<span class="c1">#print(type(allele_list))</span>
+		<span class="n">final_dict</span><span class="p">[</span><span class="n">ag</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">final_dict</span><span class="p">[</span><span class="n">ag</span><span class="p">]</span> <span class="o">=</span> <span class="n">ag_to_allele_dict</span><span class="p">[</span><span class="n">ag</span><span class="p">]</span>		
+<span class="c1">#print(final_dict)</span>
+
+<div class="viewcode-block" id="map_single_ag_to_alleles"><a class="viewcode-back" href="../../api/transplanttoolbox_victor.html#transplanttoolbox_victor.reverse_conversion.map_single_ag_to_alleles">[docs]</a><span class="k">def</span> <span class="nf">map_single_ag_to_alleles</span><span class="p">(</span><span class="n">antigen</span><span class="p">):</span>
+	<span class="n">allele_list</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">allele_only_list</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">if</span> <span class="n">antigen</span> <span class="ow">in</span> <span class="n">final_dict</span><span class="p">:</span>
+		<span class="n">allele_list</span> <span class="o">=</span> <span class="n">final_dict</span><span class="p">[</span><span class="n">antigen</span><span class="p">]</span>
+	
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">allele_list</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+		<span class="n">allele_only_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+	<span class="n">flat_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">allele_only_list</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>	
+	<span class="n">flat_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">flat_list</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+	<span class="k">return</span> <span class="n">flat_list</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">transplanttoolbox-victor</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">Module Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, NavchetanKaur.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

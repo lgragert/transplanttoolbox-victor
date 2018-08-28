@@ -45,7 +45,7 @@ for row in UNOS_conversion_table_file:
 		continue 
 	else:
 		allele = row.split(',')[0]
-		allele_4d = vxm_hla.allele_truncate(allele)
+		allele_4d = transplanttoolbox_victor.vxm_hla.allele_truncate(allele)
 		antigen = row.split(',')[1]
 		unosEQags.append(antigen)
 		rule = row.split(',') [2]
@@ -82,7 +82,7 @@ race_list = ["AAFA", "AFA", "CAU", "HIS", "NAM", "AFB", "AINDI", "API",
 #print(b_bw_dict)	
 
 for pop in race_list:
-	file = BASE_DIR + "/transplanttoolbox_allan/freqs_6loc/" + pop + ".ARS.freqs"
+	file = BASE_DIR + "/transplanttoolbox_victor/freqs_6loc/" + pop + ".ARS.freqs"
 	freq_file = open(file, 'r')
 	for line in freq_file:
 		if line.startswith("Haplo"):
