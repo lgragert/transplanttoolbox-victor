@@ -109,7 +109,7 @@ for ag in ag_to_allele_dict.keys():
 
 	else:
 		final_dict[ag] = ag_to_allele_dict[ag]		
-print final_dict
+print (final_dict)
 
 def map_single_ag_to_alleles(antigen):
 	if antigen in final_dict:
