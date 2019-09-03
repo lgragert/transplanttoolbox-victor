@@ -9,8 +9,8 @@ ag_to_allele_dict = {}
 UA_eq_dict = {}
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UNOS_UA_eq_filename = os.path.join(BASE_DIR,"ttb_victor/UNOS_4-10_ag_equivalencies.csv")
+
+UNOS_UA_eq_filename = "UNOS_4-10_ag_equivalencies.csv"
 UNOS_UA_eq_file = open(UNOS_UA_eq_filename, 'r')
 
 for row in UNOS_UA_eq_file:
@@ -26,7 +26,7 @@ for row in UNOS_UA_eq_file:
 
 #print(UA_eq_dict)
 
-UNOS_conversion_table_filename = os.path.join(BASE_DIR,"ttb_victor/conversion_table.csv")
+UNOS_conversion_table_filename = "conversion_table.csv"
 UNOS_conversion_table_file = open(UNOS_conversion_table_filename, 'r')
 for row in UNOS_conversion_table_file:
 	expression_character = ""
